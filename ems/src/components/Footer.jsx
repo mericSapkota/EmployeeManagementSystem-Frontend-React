@@ -2,8 +2,8 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <div className="w-100 d-flex justify-content-center  mx-auto footer ">
-      <footer className="w-75  d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+    <div className="w-100 d-flex position-absolute bottom-0  mx-auto footer ">
+      {/* <footer className="w-75  d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
         <p className="col-md-4 mb-0 text-body-secondary">© 2024 Company, Inc</p>
 
         <a
@@ -12,6 +12,7 @@ const Footer = () => {
         >
          
         </a>
+
 
         <ul className="nav col-md-4 justify-content-end">
           <li className="nav-item">
@@ -35,7 +36,24 @@ const Footer = () => {
             </a>
           </li>
         </ul>
-      </footer>
+      </footer> */}
+      <div className="d-flex w-100 flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
+        <div className="text-white mb-3 mb-md-0">Copyright © 2020. All rights reserved.</div>
+        <div>
+          <a href="#!" className="text-white me-4">
+            <i className="fab fa-facebook-f" />
+          </a>
+          <a href="#!" className="text-white me-4">
+            <i className="fab fa-twitter" />
+          </a>
+          <a href="#!" className="text-white me-4">
+            <i className="fab fa-google" />
+          </a>
+          <a href="#!" className="text-white">
+            <i className="fab fa-linkedin-in" />
+          </a>
+        </div>
+      </div>
     </div>
   );
 };
