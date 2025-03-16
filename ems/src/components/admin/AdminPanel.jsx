@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
+
 import { getAllAnnouncements, saveAnnouncement } from "../../service/AnnouncementService";
+import { getImage } from "../../service/ImageService";
+import { TextField, Button, IconButton } from "@mui/material";
+import { PhotoCamera } from "@mui/icons-material";
+import Announcements from "../announcements";
 
-const AdminPanel = ({ showNavBar, userDetails }) => {
+const AdminPanel = ({ userDetails }) => {
   const username = userDetails.username;
+  const firstName = userDetails.firstName;
+  const lastName = userDetails.lastName;
+  const role = userDetails.role;
 
-  const [announcements, setAnnouncements] = useState({
-    username: username,
-    content: "",
-    file: null,
-  });
+  const [announcements, setAnnouncements] = useState([]);
 
   const fetchAnnouncements = async () => {
     const response = await getAllAnnouncements();
-    console.log("All announcements", response);
+    response.data
+      // .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .map((announcement) => {
+        announcement.postedImage = getImage(announcement.postedImage);
+        announcement.posterImage = getImage(announcement.posterImage);
+        return announcement;
+      });
+    setAllAnnouncements(response.data);
   };
+
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
   const [allAnnouncements, setAllAnnouncements] = useState([]);
+
+  let image = announcements.file ? URL.createObjectURL(announcements.file) : null;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,9 +46,10 @@ const AdminPanel = ({ showNavBar, userDetails }) => {
 
   const postAnnouncement = async (e) => {
     e.preventDefault();
-    console.log("Stored token:", localStorage.getItem("token"));
-
+    announcements.username = username;
     const response = await saveAnnouncement(announcements);
+    fetchAnnouncements();
+    setAnnouncements({});
     console.log("Announcement posted", response);
   };
 
@@ -47,58 +61,64 @@ const AdminPanel = ({ showNavBar, userDetails }) => {
 
   return (
     <>
-      <div className="container vh-100">
+      <div className="container pt-4">
         <div className="row">
-          <div className="main pb-5 col-12 bg-light d-flex flex-column gap-5 justify-content-center align-items-center">
+          <div className="main pb-5 col-12 bg-light d-flex flex-column gap-2 justify-content-center align-items-center">
             <div className="">
-              <h3>Welcome to Employee Management System</h3>
+              <h3>
+                Welcome {firstName} {lastName} to Employee Management System
+              </h3>
             </div>
 
-            <div className="card  overflow-auto" style={{ width: 38 + "rem", height: "500px" }}>
+            <div
+              className="card shadow-sm mx-auto p-3"
+              style={{ maxWidth: "100vw", maxHeight: "600px", minHeight: "300px", overflowY: "auto" }}
+            >
               <div className="card-body">
-                <h5 className="card-title">Announcements</h5>
-                <form encType="multipart/form-data">
-                  <div className="d-flex flex-column gap-2 mb-2" style={{ maxHeight: 200 + "px" }}>
-                    <textarea
+                <h5 className="card-title text-center">Announcements</h5>
+
+                {role === "ADMIN" && (
+                  <form encType="multipart/form-data" style={{ padding: "1rem" }}>
+                    {/* Textarea Input */}
+                    <TextField
                       name="content"
-                      type="textarea"
-                      className="mytext mh-50 mh-100 mw-100"
-                      onInput={autoResize}
+                      multiline
                       rows={2}
+                      fullWidth
+                      className="w-100"
+                      variant="outlined"
+                      placeholder="What's on your mind?"
                       onChange={handleInputChange}
-                      placeholder={` What's on your mind? `}
-                    ></textarea>
-                  </div>
-                  <label>Upload Image</label>
-                  <input name="file" onChange={handleFileChange} type="file" accept=".jpg, .png" />
-                  <br></br>
-                  <Button variant="outlined" className="mt-4 mb-4 w-100" onClick={postAnnouncement}>
-                    Post
-                  </Button>
-                </form>
+                      sx={{ mb: 2 }}
+                    />
 
-                <div>
-                  <div className="card">
-                    <div className="card-body">
-                      <h7 className="card-title">Annoucments</h7>
-                      {allAnnouncements.map((announcement) => (
-                        <div className="card">
-                          <div className="card-body">
-                            <div className="card-title d-flex flex-column ">
-                              <h5>Admin</h5>
-                              <div className="d-flex  gap-2">
-                                <h7 className="text-muted">4:30 pm</h7>
-                                <h7 className="text-muted">2024-05-12</h7>
-                              </div>
-                            </div>
+                    {/* File Upload with Icon */}
+                    <label htmlFor="file-upload">
+                      <input
+                        id="file-upload"
+                        name="file"
+                        type="file"
+                        accept=".jpg, .png"
+                        style={{ display: "none" }}
+                        onChange={handleFileChange}
+                      />
+                      <IconButton color="primary" component="span">
+                        <PhotoCamera />
+                      </IconButton>
+                      <span className="text-truncate d-inline-block" style={{ maxWidth: "150px" }}>
+                        {announcements.file ? announcements.file.name : "Upload Image"}
+                      </span>
+                      {announcements.file && <img src={image} style={{ height: "100px", width: "100px" }} alt="" />}
+                    </label>
 
-                            <p className="">Hey this is our fist post</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                    {/* Submit Button */}
+                    <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }} onClick={postAnnouncement}>
+                      Post
+                    </Button>
+                  </form>
+                )}
+
+                <Announcements allAnnouncements={allAnnouncements} />
               </div>
             </div>
           </div>

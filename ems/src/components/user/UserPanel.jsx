@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-const UserPanel = ({ userDetails, showNavBar }) => {
+const UserPanel = ({ userDetails }) => {
   console.log("User details", userDetails);
   const { firstName, lastName, email, role, username } = userDetails;
   useEffect(() => {}, []);

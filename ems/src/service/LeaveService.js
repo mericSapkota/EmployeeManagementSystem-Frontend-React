@@ -1,20 +1,45 @@
 import axios from "axios";
-import axiosInstance from "./envService";
 
 const BASE_URL = "http://localhost:8080/api/leave";
 
-export const addLeave = (leaveData)=>{
-    return axiosInstance.post(BASE_URL,leaveData);
-}
+export const addLeave = (leaveData) => {
+  return axios.post(BASE_URL, leaveData, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
+};
 
-export const listAllLeaves = ()=>{
-    return axiosInstance.get(BASE_URL+"/all");
-}
+export const listAllLeaves = () => {
+  return axios.get(BASE_URL + "/all", {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
+};
 
-export const listLeavesByEmpId =(empId)=>{
-    return axiosInstance.get(BASE_URL+"/all/"+empId);
-}
+export const listLeavesByUsername = (username) => {
+  return axios.get(BASE_URL + "/all/" + username, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
+};
 
-export const updateLeaveStatus = (id,leaveData)=>{
-    return axiosInstance.put(BASE_URL+"/"+id,leaveData);
-}
+export const getLeaveDetailsById = (id) => {
+  return axios.get(BASE_URL + "/" + id, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
+};
+
+export const updateLeaveStatus = (id, leaveData) => {
+  return axios.put(BASE_URL + "/" + id, leaveData, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
+};

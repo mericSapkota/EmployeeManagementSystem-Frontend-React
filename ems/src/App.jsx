@@ -12,19 +12,9 @@ import { useEffect, useState } from "react";
 import ListLeave from "./components/admin/ListLeave";
 import LeaveComponent from "./components/user/LeaveComponent";
 import Login from "./components/login";
-import UserPanel from "./components/user/UserPanel";
+import ListSalary from "./components/user/ListSalary";
 
 function App() {
-  const [navOn, setNavOn] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  const showNavBar = () => {
-    const navbar = document.querySelector(".sidebar");
-    navbar.classList.toggle("d-none");
-
-    setNavOn(!navOn);
-  };
-
   const [userDetails, setUserDetails] = useState(() => {
     const user = localStorage.getItem("userDetails");
     return user
@@ -37,6 +27,7 @@ function App() {
           role: "",
           username: "",
           image: null,
+          id: null,
         };
   });
 
@@ -45,34 +36,26 @@ function App() {
   }, [userDetails]);
 
   return (
-    <>
+    <div id="root">
       <BrowserRouter>
-        <Header
-          showNavBar={showNavBar}
-          setLoggedIn={setLoggedIn}
-          setUserDetails={setUserDetails}
-          userDetails={userDetails}
-        />
+        <Header setUserDetails={setUserDetails} userDetails={userDetails} />
         <Routes>
-          <Route
-            path="/"
-            element={<Login setAfterLogin={setUserDetails} setLoggedIn={setLoggedIn} afterLogin={userDetails} />}
-          ></Route>
-
-          {userDetails.role === "ADMIN" ? (
-            <Route path="/admin" element={<AdminPanel showNavBar={showNavBar} userDetails={userDetails} />}></Route>
-          ) : (
-            <Route path="/user" element={<UserPanel userDetails={userDetails} showNavBar={showNavBar} />}></Route>
-          )}
-          <Route path="/list-employee" element={<ListEmployee showNavBar={showNavBar} />}></Route>
+          <Route path="/" element={<Login setAfterLogin={setUserDetails} afterLogin={userDetails} />}></Route>
+          <Route path="/home" element={<AdminPanel userDetails={userDetails} />}></Route>
+          <Route path="/list-employee" element={<ListEmployee userDetails={userDetails} />}></Route>
           <Route path="/add-employee" element={<EmployeeComponent />}></Route>
-          <Route path="/update-employee/:id" element={<EmployeeComponent />}></Route>
-          <Route path="/list-leave" element={<ListLeave showNavBar={showNavBar} />}></Route>
-          <Route path="/add-leave" element={<LeaveComponent />}></Route>
+          <Route
+            path="/update-employee/:id"
+            element={<EmployeeComponent afterLogin={userDetails} setAfterLogin={setUserDetails} />}
+          ></Route>
+          <Route path="/list-leave" element={<ListLeave userDetails={userDetails} />}></Route>
+          <Route path="/update-leave/:id" element={<LeaveComponent userDetails={userDetails} />}></Route>
+          <Route path="/add-leave" element={<LeaveComponent userDetails={userDetails} />}></Route>
+          <Route path="/list-salary" element={<ListSalary userDetails={userDetails} />}></Route>
         </Routes>
         <Footer />
       </BrowserRouter>
-    </>
+    </div>
   );
 }
 

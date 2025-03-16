@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { deleteEmployeeById, listEmployees } from "../../service/EmployeeService";
 import { useNavigate } from "react-router-dom";
 
-const ListEmployee = ({ showNavBar }) => {
+const ListEmployee = ({}) => {
   const [employees, setEmployees] = useState([]);
   const navigator = useNavigate();
 

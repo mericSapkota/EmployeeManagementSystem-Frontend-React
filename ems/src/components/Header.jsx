@@ -1,92 +1,145 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getImage } from "../service/ImageService";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Box,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import PersonIcon from "@mui/icons-material/Person";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
 
-const Header = ({ showNavBar, userDetails, setUserDetails }) => {
+const Header = ({ userDetails, setUserDetails }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = anchorEl;
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const image = userDetails.image;
-  const navigator = useNavigate();
-
   const processedImage = getImage(image);
 
-  const goToEmpDetails = () => {
-    showNavBar();
-    navigator("/list-employee");
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
-  const goToLeaveDetails = () => {
-    showNavBar();
-    navigator("/list-leave");
-  };
-  const goToHome = () => {
-    showNavBar();
-    navigator("/");
+
+  const goToPage = (path) => {
+    navigate(path);
   };
 
   const logout = () => {
     localStorage.removeItem("userDetails");
     setUserDetails({});
-    navigator("/");
+    navigate("/");
   };
 
   return (
-    <nav className="navbar bg-body-tertiary position-relative ">
-      <div className="vh-100 d-none sidebar position-absolute z-1 top-0 start-0 bg-body-tertiary p-2  col-3">
-        <div className="d-flex justify-content-between position-relative">
-          <h5>Navbar</h5>
-          <i onClick={showNavBar} className="fa fa-times position-absolute end-0 " aria-hidden="true"></i>
-        </div>
-        <hr></hr>
-        <div>
-          <h5>Go To </h5>
-          <button class="btn btn-secondary mb-1" onClick={goToHome}>
-            Home
-          </button>
-          <br></br>
-          <button className="btn btn-secondary mb-1" onClick={goToEmpDetails}>
-            Employee Details
-          </button>
-          <br></br>
-          <button className="btn btn-secondary mb-1" onClick={goToLeaveDetails}>
-            {" "}
-            Leave Details
-          </button>
-        </div>
-      </div>
-      <div className="container-fluid">
-        <button className="navbar-toggler" type="button" onClick={showNavBar}>
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <a className="navbar-brand" href="#">
-          Employee Management System
-        </a>
+    <AppBar position="static" color="primary">
+      <Toolbar className="d-flex justify-content-between">
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+        >
+          <MenuItem onClick={() => goToPage(`/update-employee/${userDetails.id} `)}>
+            <AccountCircleIcon fontSize="small" style={{ marginRight: 8 }} />
+            Update Profile
+          </MenuItem>
+          <MenuItem onClick={handleClose}>
+            <LogoutIcon fontSize="small" style={{ marginRight: 8 }} />
+            Logout
+          </MenuItem>
+        </Menu>
+        {/* Navbar Toggler for Small Screens */}
         {userDetails.token && (
-          <div>
-            <button className="btn">
-              {image ? (
-                <img src={processedImage} style={{ height: "40px", width: "40px" }} />
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  fill="currentColor"
-                  class="bi bi-person-circle"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                  <path
-                    fill-rule="evenodd"
-                    d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-                  />
-                </svg>
-              )}
-            </button>
-            <button className="btn btn-primary" onClick={logout}>
-              Logout
-            </button>
-          </div>
+          <IconButton color="inherit" edge="start" sx={{ display: { md: "none" } }} onClick={handleDrawerToggle}>
+            <MenuIcon />
+          </IconButton>
         )}
-      </div>
-    </nav>
+
+        {/* Brand Name */}
+        <Typography variant="h6" sx={{ flexGrow: 1, maxWidth: "max-content" }}>
+          Employee Management System
+        </Typography>
+
+        {/* Navbar Links (Hidden on Small Screens) */}
+        {userDetails.token && (
+          <Box sx={{ display: { xs: "none", md: "flex" }, marginRight: 0, gap: 2 }}>
+            <Button color="inherit" onClick={() => goToPage("/home")}>
+              Home
+            </Button>
+            {userDetails.role === "ADMIN" && (
+              <Button color="inherit" onClick={() => goToPage("/list-employee")}>
+                Employee Details
+              </Button>
+            )}
+            <Button color="inherit" onClick={() => goToPage("/list-leave")}>
+              Leave Details
+            </Button>
+            <Button color="inherit" onClick={() => goToPage("/list-salary")}>
+              Salary Details
+            </Button>
+          </Box>
+        )}
+
+        {/* Profile & Logout Button */}
+        {userDetails.token && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton onClick={handleClick} color="inherit">
+              {processedImage ? (
+                <img src={processedImage} style={{ height: "40px", width: "40px", borderRadius: "50%" }} />
+              ) : (
+                <PersonIcon fontSize="large" />
+              )}
+            </IconButton>
+            <Button variant="contained" style={{ backgroundColor: "white", color: "black" }} onClick={logout}>
+              Logout
+            </Button>
+          </Box>
+        )}
+      </Toolbar>
+
+      {/* Sidebar Drawer (For Small Screens) */}
+      <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle}>
+        <List sx={{ width: 250 }}>
+          <ListItem button onClick={() => goToPage("/home")}>
+            <ListItemText primary="Home" />
+          </ListItem>
+          {userDetails.role === "ADMIN" && (
+            <ListItem button onClick={() => goToPage("/list-employee")}>
+              <ListItemText primary="Employee Details" />
+            </ListItem>
+          )}
+          <ListItem button onClick={() => goToPage("/list-leave")}>
+            <ListItemText primary="Leave Details" />
+          </ListItem>
+          <ListItem button>
+            <ListItemText primary="Salary Details" />
+          </ListItem>
+        </List>
+      </Drawer>
+    </AppBar>
   );
 };
 

@@ -3,7 +3,11 @@ import axios from "axios";
 const REST_API_BASE_URL = "http://localhost:8080/api/employee";
 
 export const listEmployees = () => {
-  return axios.get(REST_API_BASE_URL);
+  return axios.get(REST_API_BASE_URL, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
 };
 
 export const addEmployees = (employeeData) => {
@@ -15,15 +19,29 @@ export const addEmployees = (employeeData) => {
 };
 
 export const getEmployee = (empId) => {
-  return axios.get(REST_API_BASE_URL + "/" + empId);
+  return axios.get(REST_API_BASE_URL + "/" + empId, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
 };
 
 export const updateEmployee = (empId, empData) => {
-  return axios.put(REST_API_BASE_URL + "/" + empId, empData);
+  console.log("token", JSON.parse(localStorage.getItem("userDetails")).token);
+  return axios.put(REST_API_BASE_URL + "/" + empId, empData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
 };
 
 export const deleteEmployeeById = (empId) => {
-  return axios.delete(REST_API_BASE_URL + "/" + empId);
+  return axios.delete(REST_API_BASE_URL + "/" + empId, {
+    headers: {
+      Authorization: `Bearer ${JSON.parse(localStorage.getItem("userDetails")).token}`,
+    },
+  });
 };
 
 export const login = (loginData) => {
