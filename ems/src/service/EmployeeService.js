@@ -11,6 +11,7 @@ export const listEmployees = () => {
 };
 
 export const addEmployees = (employeeData) => {
+  console.log(employeeData.file);
   return axios.post("http://localhost:8080/r", employeeData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -27,7 +28,7 @@ export const getEmployee = (empId) => {
 };
 
 export const updateEmployee = (empId, empData) => {
-  console.log("token", JSON.parse(localStorage.getItem("userDetails")).token);
+  console.log(empData.file);
   return axios.put(REST_API_BASE_URL + "/" + empId, empData, {
     headers: {
       "Content-Type": "multipart/form-data",

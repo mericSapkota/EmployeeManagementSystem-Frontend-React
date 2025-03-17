@@ -13,6 +13,7 @@ import ListLeave from "./components/admin/ListLeave";
 import LeaveComponent from "./components/user/LeaveComponent";
 import Login from "./components/login";
 import ListSalary from "./components/user/ListSalary";
+import SalaryComponent from "./components/admin/SalaryComponent";
 
 function App() {
   const [userDetails, setUserDetails] = useState(() => {
@@ -30,9 +31,20 @@ function App() {
           id: null,
         };
   });
+  const [reload, setReload] = useState(false);
+
+  const updateUserDetails = (newDetails) => {
+    setUserDetails((prevDetails) => ({
+      ...prevDetails,
+      ...newDetails,
+      token: prevDetails.token, // Only update the details that changed
+    }));
+  };
 
   useEffect(() => {
-    localStorage.setItem("userDetails", JSON.stringify(userDetails));
+    if (userDetails) {
+      localStorage.setItem("userDetails", JSON.stringify(userDetails));
+    }
   }, [userDetails]);
 
   return (
@@ -46,12 +58,19 @@ function App() {
           <Route path="/add-employee" element={<EmployeeComponent />}></Route>
           <Route
             path="/update-employee/:id"
-            element={<EmployeeComponent afterLogin={userDetails} setAfterLogin={setUserDetails} />}
+            element={
+              <EmployeeComponent
+                afterLogin={userDetails}
+                updateUserDetails={updateUserDetails}
+                setAfterLogin={setUserDetails}
+              />
+            }
           ></Route>
           <Route path="/list-leave" element={<ListLeave userDetails={userDetails} />}></Route>
           <Route path="/update-leave/:id" element={<LeaveComponent userDetails={userDetails} />}></Route>
           <Route path="/add-leave" element={<LeaveComponent userDetails={userDetails} />}></Route>
           <Route path="/list-salary" element={<ListSalary userDetails={userDetails} />}></Route>
+          <Route path="/addSalary" element={<SalaryComponent />}></Route>
         </Routes>
         <Footer />
       </BrowserRouter>

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { addEmployees, getEmployee, updateEmployee } from "../../service/EmployeeService";
 import { useNavigate, useParams } from "react-router-dom";
 import { getImage } from "../../service/ImageService";
-import { IconButton } from "@mui/material";
+import { Alert, Button, IconButton, Snackbar } from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
 
-const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
+import CloseIcon from "@mui/icons-material/Close";
+
+const EmployeeComponent = ({ setAfterLogin, afterLogin, setReload, updateUserDetails }) => {
   const [userDetails, setUserDetails] = useState({
     firstName: "",
     lastName: "",
@@ -13,10 +15,11 @@ const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
     email: "",
     password: "",
     username: "",
-    role: afterLogin.role,
+    role: null,
     image: null,
   });
   const [uploadedImage, setUploadedImage] = useState();
+  const [open, setOpen] = React.useState(false);
 
   const navigator = useNavigate();
   const { id } = useParams();
@@ -37,7 +40,8 @@ const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
           email: response.data.email,
           age: response.data.age,
           username: response.data.username,
-          file: getImage(response.data.image),
+          file: response.data.file,
+          image: getImage(response.data.image),
         });
       })
       .catch((error) => {
@@ -58,17 +62,25 @@ const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
 
   const handleFileChange = (e) => {
     const image = e.target.files[0];
-    setUploadedImage(URL.createObjectURL(image));
     setUserDetails({ ...userDetails, file: image });
+    setUploadedImage(URL.createObjectURL(image));
+  };
+  const handleClick = () => {
+    setOpen(true);
+  };
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
   };
 
-  function submitForm(e) {
+  async function submitForm(e) {
     e.preventDefault();
     if (validateForm()) {
-      addEmployees(userDetails).then((response) => {
-        console.log(response.data);
-        navigator("/");
-      });
+      const response = await addEmployees(userDetails);
+      handleClick();
+      setUserDetails({});
     }
   }
   function updateForm(e) {
@@ -77,24 +89,26 @@ const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
       console.log(userDetails);
       updateEmployee(id, userDetails)
         .then((response) => {
-          console.log(response.data);
-          setAfterLogin({
-            ...afterLogin,
-            firstName: response.data.firstName,
-            lastName: response.data.lastName,
-            email: response.data.email,
-            role: response.data.role,
-            username: response.data.username,
-            image: response.data.image,
-            id: response.data.id,
-          });
-          navigator("/home");
+          handleClick();
+          if (afterLogin.role != "ADMIN") {
+            updateUserDetails(response.data);
+          }
         })
         .catch((error) => {
           console.error(error);
         });
     }
   }
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        UNDO
+      </Button>
+      <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   function validateForm() {
     let valid = true;
@@ -228,7 +242,7 @@ const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
               {uploadedImage ? (
                 <img src={uploadedImage} style={{ height: "100px", width: "100px" }} />
               ) : (
-                userDetails.file && <img src={userDetails.file} style={{ height: "100px", width: "100px" }} />
+                userDetails.image && <img src={userDetails.image} style={{ height: "100px", width: "100px" }} />
               )}
             </label>
 
@@ -236,6 +250,11 @@ const EmployeeComponent = ({ setAfterLogin, afterLogin }) => {
               Submit
             </button>
           </form>
+          <Snackbar open={open} autoHideDuration={5000} onClose={handleClose} action={action}>
+            <Alert onClose={handleClose} severity="success" variant="filled" sx={{ width: "100%" }}>
+              {id ? `Succesfully Updated Employee !` : `Succesfully Added Employee !`}
+            </Alert>
+          </Snackbar>
         </div>
       </div>
     </div>
